@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clients List</title>
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f2f2f2;
+    }
+    
+    header {
+        background-color: #333;
+        color: white;
+        padding: 10px;
+        text-align: center;
+    }
+    
+    #clientList {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+        padding: 20px;
+    }
+    
+    .client {
+        background-color: white;
+        border: 1px solid #ddd;
+        padding: 10px;
+        cursor: pointer;
+    }
+    
+    #popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        padding: 20px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        z-index: 2;
+    }
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Clients List</h1>
+        <select id="filter">
+            <option value="all">All Clients</option>
+            <option value="managers">Managers Only</option>
+            <option value="nonManagers">Non-Managers Only</option>
+        </select>
+    </header>
+    <div id="clientList"></div>
+    <div id="popup"></div>
+    <script src="script.js"></script>
+    
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const clientList = document.getElementById("clientList");
+        const filter = document.getElementById("filter");
+        const popup = document.getElementById("popup");
+    
+        
+        fetch("https://qa2.sunbasedata.com/sunbase/portal/api/assignment.jsp?cmd=client_data/words.json")
+            .then(response => response.json())
+            .then(data => {
+                // Process data and create client elements
+                const clients = data.clients; // Assuming your JSON structure contains a "clients" array
+                clients.forEach(client => {
+                    const clientElement = document.createElement("div");
+                    clientElement.classList.add("client");
+                    clientElement.textContent = `${client.label} - Points: ${client.points}`;
+    
+                    // Show popup on client click
+                    clientElement.addEventListener("click", () => {
+                        showPopup(client);
+                    });
+    
+                    clientList.appendChild(clientElement);
+                });
+            })
+            .catch(error => console.error("Error fetching data:", error));
+    
+        // Filter clients based on dropdown selection
+        filter.addEventListener("change", () => {
+            // Implement your filtering logic here
+        });
+    
+        // Display client details in popup
+        function showPopup(client) {
+            popup.innerHTML = `
+                <h2>${client.label}</h2>
+                <p>Points: ${client.points}</p>
+                <p>Address: ${client.address}</p>
+            `;
+            popup.style.display = "block";
+    
+            // Implement animation using DOTween or other animation libraries
+            // Example with plain CSS transition
+            popup.style.opacity = "0";
+            setTimeout(() => {
+                popup.style.opacity = "1";
+            }, 100);
+        }
+    });
+
+    </script>
+    
+</body>
+</html>
