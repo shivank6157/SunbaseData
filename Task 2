@@ -1,0 +1,115 @@
+Script 1 for drawing line Main Camera :-
+
+using System.Collections.Generic;
+using UnityEngine;
+
+public class LineDrawer : MonoBehaviour
+{
+    public GameObject linePrefab;
+    public LayerMask circleLayer;
+
+    private GameObject currentLine;
+    private LineRenderer lineRenderer;
+    private List<GameObject> crossedCircles = new List<GameObject>();
+
+    private void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            CreateNewLine();
+        }
+        else if (Input.GetMouseButton(0))
+        {
+            UpdateLine();
+        }
+        else if (Input.GetMouseButtonUp(0))
+        {
+            RemoveCrossedCircles();
+            Destroy(currentLine);
+        }
+    }
+
+    private void CreateNewLine()
+    {
+        currentLine = Instantiate(linePrefab);
+        lineRenderer = currentLine.GetComponent<LineRenderer>();
+    }
+
+    private void UpdateLine()
+    {
+        if (currentLine != null)
+        {
+            Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+            if (Physics2D.OverlapCircle(mousePosition, 0.1f, circleLayer))
+            {
+                // Get the circle that the line crosses
+                Collider2D[] intersectedCircles = Physics2D.OverlapCircleAll(mousePosition, 0.1f, circleLayer);
+
+                foreach (var circleCollider in intersectedCircles)
+                {
+                    GameObject circle = circleCollider.gameObject;
+
+                    if (!crossedCircles.Contains(circle))
+                    {
+                        crossedCircles.Add(circle);
+                    }
+                }
+            }
+
+            lineRenderer.positionCount++;
+            lineRenderer.SetPosition(lineRenderer.positionCount - 1, mousePosition);
+        }
+    }
+
+    private void RemoveCrossedCircles()
+    {
+        foreach (var circle in crossedCircles)
+        {
+            Destroy(circle);
+        }
+
+        crossedCircles.Clear();
+    }
+}
+
+SCRIPT 2 for spawning circles in Empty GAME Object :-
+
+using System.Collections;
+using UnityEngine;
+
+public class CircleSpawner : MonoBehaviour
+{
+    public GameObject circle_prefab_2;
+    public int minCircles = 5;
+    public int maxCircles = 10;
+
+    private void Start()
+    {
+        int circleCount = Random.Range(minCircles, maxCircles + 1);
+
+        for (int i = 0; i < circleCount; i++)
+        {
+            Vector3 spawnPosition = new Vector3(Random.Range(-8f, 8f), Random.Range(-4f, 4f), 0f);
+            Instantiate(circle_prefab_2, spawnPosition, Quaternion.identity);
+        }
+    }
+}
+
+
+SCRIPT 3 for RESTART Button :-
+
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class RestartButton : MonoBehaviour
+{
+    public void RestartScene()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+}
+
+
+
+
